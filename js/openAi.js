@@ -1,39 +1,39 @@
 const GITHUB_TOKEN = "";
-const endpoint = "https://models.github.ai/inference";
-const model = "openai/gpt-4.1";
+const ENDPOINT = "https://models.github.ai/inference";
+const MODEL = "openai/gpt-4.1";
 
-async function callGithubAI(prompt){
-    try{
-        const response=await fetch(`${endpoint}/chat/completions`,{
+async function callGitHubAI(prompt) {
+    try {
+        const response = await fetch(`${ENDPOINT}/chat/completions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization':`Bearer ${atob("Z2hwX016b3NGd0x6OTdVUHNLdzNZTE94Y3JkQlhlR25TNjQxcEF4Qw==")}`
+                'Authorization': `Bearer ${GITHUB_TOKEN}`
             },
             body: JSON.stringify({
-                messages:[
-                    {role:"system", content:""},
-                    {role:"user", content: prompt}
+                messages: [
+                    { role: "system", content: "You are a helpful assistant." },
+                    { role: "user", content: prompt }
                 ],
-                tempreature:1,
-                top_p:1,
-                model:MODEL
+                temperature: 1,
+                top_p: 1,
+                model: MODEL
             })
         });
-        if(!response.ok){
+
+        if (!response.ok) {
             throw new Error(`API call failed: ${response.status} ${response.statusText}`);
         }
-        const data=await response.json();
-        if(data.choices && data.choices.length>0){
+
+        const data = await response.json();
+        
+        if (data.choices && data.choices.length > 0) {
             return data.choices[0].message.content;
+        } else {
+            throw new Error('No response content received from API');
         }
-        else{
-            console.error("No response from API");
-        throw new Error(`No response from API: ${response.status} ${response.statusText}`);
-        }
-    }catch(error)
-    {
-        console.error("Error while calling api", error);
+    } catch (error) {
+        console.error('Error calling GitHub AI API:', error);
         throw error;
     }
 }
