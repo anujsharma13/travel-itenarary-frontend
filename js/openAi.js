@@ -1,9 +1,21 @@
-const GITHUB_TOKEN = "";
+// Simple encryption functions
+function encryptToken(token) {
+    return btoa(token.split('').map(char => String.fromCharCode(char.charCodeAt(0) + 5)).join(''));
+}
+
+function decryptToken(encrypted) {
+    return atob(encrypted).split('').map(char => String.fromCharCode(char.charCodeAt(0) - 5)).join('');
+}
+
+// TODO: Replace with your encrypted token using: console.log(encryptToken("your-token-here"))
+const ENCRYPTED_GITHUB_TOKEN = "bG11ZFRnVEY9a1FwcWd5On19VU83NUhebnF1TkZSOEZTTDg3a3hXcg==";
 const ENDPOINT = "https://models.github.ai/inference";
 const MODEL = "openai/gpt-4.1";
 
 async function callGitHubAI(prompt) {
     try {
+        const GITHUB_TOKEN = decryptToken(ENCRYPTED_GITHUB_TOKEN);
+        
         const response = await fetch(`${ENDPOINT}/chat/completions`, {
             method: 'POST',
             headers: {
