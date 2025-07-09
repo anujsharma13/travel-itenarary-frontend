@@ -553,7 +553,8 @@
 
         <!-- JavaScript Files -->
         <script src="../js/script.js"></script>
-        <!-- External JavaScript file for common functionality -->
+        <script src="../js/auth.js"></script>
+        <!-- Authentication module for login/signup handling -->
         <script>
             // Inline JavaScript for page-specific functionality
             
@@ -598,80 +599,6 @@
                     // Change icon to eye
                 }
             }
-            
-            // Password strength checker function
-            function checkPasswordStrength(password) {
-                const strengthBar = document.getElementById('strengthBar');
-                // Get strength bar element
-                const strengthText = document.getElementById('strengthText');
-                // Get strength text element
-                
-                let strength = 0; // Initialize strength score
-                let feedback = ''; // Initialize feedback message
-                
-                // Check password criteria and add points
-                if (password.length >= 8) strength += 25; // Length check
-                if (/[a-z]/.test(password)) strength += 25; // Lowercase check
-                if (/[A-Z]/.test(password)) strength += 25; // Uppercase check
-                if (/[0-9]/.test(password)) strength += 25; // Number check
-                
-                strengthBar.style.width = strength + '%'; // Set bar width
-                strengthBar.className = 'strength-bar'; // Reset classes
-                
-                // Determine strength level and styling
-                if (strength <= 25) {
-                    strengthBar.classList.add('strength-weak');
-                    feedback = 'Weak password';
-                } else if (strength <= 50) {
-                    strengthBar.classList.add('strength-medium');
-                    feedback = 'Medium strength password';
-                } else {
-                    strengthBar.classList.add('strength-strong');
-                    feedback = 'Strong password';
-                }
-                
-                strengthText.textContent = feedback; // Update feedback text
-            }
-            
-            // Password strength event listener
-            document.getElementById('password').addEventListener('input', function() {
-                checkPasswordStrength(this.value); // Check strength on each input
-            });
-            
-            // Form submission handler
-            document.getElementById('signupForm').addEventListener('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
-                
-                // Get form values
-                const firstName = document.getElementById('firstName').value;
-                const lastName = document.getElementById('lastName').value;
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                // Validate password match
-                if (password !== confirmPassword) {
-                    alert('Passwords do not match!');
-                    return; // Stop form submission
-                }
-                
-                // Add loading state to submit button
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
-                // Show loading spinner
-                submitBtn.disabled = true; // Disable button during submission
-                
-                // Simulate API call with setTimeout
-                setTimeout(() => {
-                    // Reset button to original state
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    
-                    // Redirect to home page (in real app, this would be after successful account creation)
-                    window.location.href = 'home.html';
-                }, 2000); // 2 second delay to simulate API call
-            });
         </script>
     </body>
 </html> 

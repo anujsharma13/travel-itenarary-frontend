@@ -297,10 +297,10 @@
                         
                         <form id="signinForm">
                             <div class="form-group mb-3">
-                                <label for="email" class="form-label">Email Address</label>
+                                <label for="email" class="form-label">Email or Username</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                    <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" id="email" placeholder="Enter your email or username" required>
                                 </div>
                             </div>
                             
@@ -354,6 +354,7 @@
 
         <!-- Scripts -->
         <script src="../js/script.js"></script>
+        <script src="../js/auth.js"></script>
         <script>
             // Travel carousel functionality
             let currentTravelSlide = 0;
@@ -384,30 +385,6 @@
                     passwordToggle.classList.add('fa-eye');
                 }
             }
-            
-            // Form submission
-            document.getElementById('signinForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                
-                // Add loading state
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
-                submitBtn.disabled = true;
-                
-                // Simulate API call
-                setTimeout(() => {
-                    // Reset button
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    
-                    // Redirect to home page (in real app, check credentials)
-                    window.location.href = 'home.html';
-                }, 2000);
-            });
         </script>
     </body>
 </html> 

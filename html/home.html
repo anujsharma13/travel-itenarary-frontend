@@ -388,11 +388,28 @@
                 <!-- Navigation Menu -->
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                     <ul class="navbar-nav align-items-center">
-                        <li class="nav-item"><a class="nav-link" href="#">Sign Up</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Trips</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Reviews</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Newsletter</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Sign in</a></li>
+                        <!-- Guest Navigation (shown when not logged in) -->
+                        <li class="nav-item" data-guest-only><a class="nav-link" href="signup.html">Sign Up</a></li>
+                        <li class="nav-item" data-guest-only><a class="nav-link" href="signin.html">Sign in</a></li>
+                        
+                        <!-- Authenticated Navigation (shown when logged in) -->
+                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="#">My Trips</a></li>
+                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="#">Reviews</a></li>
+                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="#">Newsletter</a></li>
+                        
+                        <!-- User Info and Logout -->
+                        <li class="nav-item dropdown" data-auth-only style="display: none;">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>
+                                <span data-user-name>User</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" data-logout><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -401,8 +418,14 @@
         <!-- ===== HERO SECTION ===== -->
         <section class="hero-section">
             <div class="container text-center">
-                <h1 class="display-4 fw-bold mb-3">Plan Your Perfect Trip</h1>
-                <p class="lead mb-4">Choose your preferred way to search and discover amazing destinations</p>
+                <h1 class="display-4 fw-bold mb-3">
+                    <span data-guest-only>Plan Your Perfect Trip</span>
+                    <span data-auth-only style="display: none;">Welcome back, <span data-user-name>User</span>!</span>
+                </h1>
+                <p class="lead mb-4">
+                    <span data-guest-only>Choose your preferred way to search and discover amazing destinations</span>
+                    <span data-auth-only style="display: none;">Ready to explore new destinations? Let's plan your next adventure!</span>
+                </p>
                 
                 <!-- Main Search Container -->
                 <div class="row justify-content-center">
@@ -666,9 +689,16 @@
         </footer>
 
         <!-- ===== JAVASCRIPT FILES ===== -->
+        <!-- Authentication Module -->
+        <script src="../js/auth.js"></script>
         <!-- OpenAI Integration Script -->
         <script src="../js/openAi.js"></script>
         <!-- Main Application Script -->
         <script src="../js/script.js"></script>
+        
+        <!-- Route Protection Script -->
+        <script>
+            // Route protection is now handled in auth.js
+        </script>
     </body>
 </html>
