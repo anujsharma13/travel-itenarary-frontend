@@ -136,27 +136,100 @@ async function performManualSearch() {
 // OpenAI API integration
 async function generateTripSuggestions(userInput) {
     try {
-        // Create a comprehensive prompt for trip planning
-        const systemPrompt = `You are an expert travel planner and advisor. Provide detailed, personalized travel suggestions based on user input. 
-        Include:
-        - Recommended destinations and attractions
-        - Suggested itinerary with daily activities
-        - Budget considerations and tips
-        - Best time to visit
-        - Accommodation suggestions
-        - Local cuisine recommendations
-        - Travel tips and cultural insights
-        
-        Format your response in a clear, structured way with headings and bullet points. Be specific and actionable.`;
+        // Create a focused prompt for essential trip information
+        const systemPrompt = `You are a travel advisor. Provide a concise response with ONLY the following information in this exact format:
 
-        const userPrompt = `Please provide detailed travel planning suggestions for: ${userInput}`;
+        DESTINATION: [Main destination name]
+        DURATION: [Suggested trip duration]
+        BUDGET: [Estimated budget range]
+        BEST_TIME: [Best time to visit]
+        TOP_ATTRACTIONS: [List 3-4 main attractions, separated by semicolons]
+        ACCOMMODATION: [Brief accommodation recommendation]
+        LOCAL_FOOD: [2-3 must-try local dishes, separated by semicolons]
+        TRAVEL_TIP: [One important travel tip]
+
+        Keep each section brief and specific. Do not include extra formatting or explanations.`;
+
+        const userPrompt = `Please provide essential travel information for: ${userInput}`;
 
         const response = await callGitHubAI(`${systemPrompt}\n\nUser Request: ${userPrompt}`);
-        return response;
+        return formatTripResponse(response);
     } catch (error) {
         console.error('Error generating trip suggestions:', error);
         throw error;
     }
+}
+
+// Format AI response into a structured table
+function formatTripResponse(response) {
+    try {
+        const lines = response.split('\n');
+        const tripData = {};
+        
+        lines.forEach(line => {
+            if (line.includes(':')) {
+                const [key, value] = line.split(':');
+                if (key && value) {
+                    tripData[key.trim()] = value.trim();
+                }
+            }
+        });
+
+        return `
+            <div class="trip-info-container">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th colspan="2" class="text-center">✈️ Trip Planning Information</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>🎯 Destination</strong></td>
+                            <td>${tripData.DESTINATION || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>⏱️ Duration</strong></td>
+                            <td>${tripData.DURATION || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>💰 Budget</strong></td>
+                            <td>${tripData.BUDGET || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🌤️ Best Time</strong></td>
+                            <td>${tripData.BEST_TIME || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🏛️ Top Attractions</strong></td>
+                            <td>${formatList(tripData.TOP_ATTRACTIONS)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🏨 Accommodation</strong></td>
+                            <td>${tripData.ACCOMMODATION || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🍽️ Local Food</strong></td>
+                            <td>${formatList(tripData.LOCAL_FOOD)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>💡 Travel Tip</strong></td>
+                            <td>${tripData.TRAVEL_TIP || 'N/A'}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error formatting response:', error);
+        return `<div class="alert alert-info">${response}</div>`;
+    }
+}
+
+// Helper function to format semicolon-separated lists
+function formatList(text) {
+    if (!text) return 'N/A';
+    return text.split(';').map(item => `• ${item.trim()}`).join('<br>');
 }
 
 // UI helper functions
