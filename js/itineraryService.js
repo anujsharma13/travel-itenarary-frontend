@@ -5,7 +5,7 @@ class ItineraryService {
     }
 
     getAuthToken() {
-        return localStorage.getItem('authToken');
+        return localStorage.getItem('JWT_TOKEN');
     }
 
     async saveItinerary(itineraryData, userId) {
@@ -62,6 +62,14 @@ class ItineraryService {
 
     async getUserItineraries(userId) {
         const authToken = this.getAuthToken();
+        const currentUser = localStorage.getItem('CURRENT_USER');
+        
+        if (!currentUser) {
+            throw new Error('User not logged in');
+        }
+        
+        const user = JSON.parse(currentUser);
+        const userName = user.userName;
         
         if (!authToken) {
             throw new Error('Authentication token not found. Please log in again.');
@@ -77,7 +85,8 @@ class ItineraryService {
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${authToken}`
+                    'Authorization': `Bearer ${authToken}`,
+                    'userName': userName
                 }
             });
 
@@ -100,10 +109,17 @@ const itineraryService = new ItineraryService();
 
 async function saveUserItinerary(destination, fullItinerary, options = {}) {
     try {
-        const userId = localStorage.getItem('userId');
+        const currentUser = localStorage.getItem('CURRENT_USER');
+        
+        if (!currentUser) {
+            throw new Error('User not logged in');
+        }
+        
+        const user = JSON.parse(currentUser);
+        const userId = user.id;
         
         if (!userId) {
-            throw new Error('User not logged in');
+            throw new Error('User ID not found');
         }
 
         const itineraryData = {

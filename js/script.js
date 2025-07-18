@@ -1,6 +1,7 @@
 // Global variables
 let isRecording = false;
 let recognition = null;
+const AUTH_ITINERARY_PATH = 'http://localhost:8080/api/itineraries';
 
 // Carousel functionality
 let currentSlide = 0;
@@ -161,11 +162,13 @@ async function generateTripSuggestions(userInput) {
 }
 
 // Format AI response into a structured table
-function formatTripResponse(response) {
+async function formatTripResponse(response) {
     try {
         const lines = response.split('\n');
         const tripData = {};
-        
+        const authToken = localStorage.getItem("JWT_TOKEN");
+        const currentUser = localStorage.getItem('CURRENT_USER');
+        const user = JSON.parse(currentUser);
         lines.forEach(line => {
             if (line.includes(':')) {
                 const [key, value] = line.split(':');
@@ -174,7 +177,22 @@ function formatTripResponse(response) {
                 }
             }
         });
-
+        const backendResponse = await fetch(`${AUTH_ITINERARY_PATH}?userId=${encodeURIComponent(user.id)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
+                    'userName': user.userName                
+             },
+            body: JSON.stringify({
+                destination: tripData.DESTINATION,
+                fullItinerary: response,
+                budgetRange: tripData.BUDGET
+            })
+        });
+        if(!backendResponse.ok)
+        {
+            console.log("Failed to update backend")
+        }
         return `
             <div class="trip-info-container">
                 <table class="table table-striped table-hover">
