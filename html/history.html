@@ -108,6 +108,44 @@
             .navbar-nav .nav-item:nth-child(even) {
                 --bs-nav-link-color: #764ba2;
             }
+            
+            /* Search Bar Styles */
+            .search-container .input-group {
+                border-radius: 15px;
+                overflow: hidden;
+                border: 2px solid transparent;
+                background: linear-gradient(white, white) padding-box,
+                           linear-gradient(135deg, #667eea 0%, #764ba2 100%) border-box;
+            }
+            
+            .search-container .input-group:focus-within {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+            }
+            
+            .search-container .input-group-text {
+                border: none;
+                background: white;
+                padding: 12px 15px;
+            }
+            
+            .search-container .form-control {
+                border: none;
+                background: white;
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+            
+            .search-container .form-control:focus {
+                box-shadow: none;
+                outline: none;
+            }
+            
+            .search-container .btn-primary {
+                border-radius: 0;
+                padding: 12px 25px;
+                font-weight: 600;
+            }
         </style>
     </head>
     <body>
@@ -146,6 +184,30 @@
                             <i class="fas fa-history me-3"></i>Travel History
                         </h1>
                         <p class="lead text-muted">Your past travel itineraries and adventures</p>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="search-container mb-4">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8 col-lg-6">
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="searchInput" 
+                                           placeholder="Search your travel history..." 
+                                           onkeypress="handleSearchKeyPress(event)">
+                                    <button class="btn btn-primary" type="button" onclick="performSearch()">
+                                        <i class="fas fa-search me-2"></i>Search
+                                    </button>
+                                </div>
+                                <div class="mt-2 text-center">
+                                    <button class="btn btn-link btn-sm text-muted" onclick="clearSearch()" id="clearSearchBtn" style="display: none;">
+                                        <i class="fas fa-times me-1"></i>Clear Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Loading State -->
@@ -188,6 +250,10 @@
         <script src="../js/auth.js"></script>
         <script src="../js/itineraryService.js"></script>
         <script>
+            // Global variables
+            let allItineraries = []; // Store all itineraries for client-side filtering if needed
+            let isSearchActive = false;
+            
             // Initialize page
             document.addEventListener('DOMContentLoaded', () => {
                 // Check authentication
@@ -208,6 +274,87 @@
                 if (user) {
                     document.getElementById('userInfo').textContent = `Hello, ${user.firstName || user.userName}`;
                 }
+            }
+            
+            // Search functionality
+            function handleSearchKeyPress(event) {
+                if (event.key === 'Enter') {
+                    performSearch();
+                }
+            }
+            
+            async function performSearch() {
+                const searchInput = document.getElementById('searchInput');
+                const searchTerm = searchInput.value.trim();
+                
+                if (!searchTerm) {
+                    showNotification('Please enter a search term', 'error');
+                    return;
+                }
+                
+                const loadingState = document.getElementById('loadingState');
+                const emptyState = document.getElementById('emptyState');
+                const errorState = document.getElementById('errorState');
+                const itinerariesContainer = document.getElementById('itinerariesContainer');
+                const clearSearchBtn = document.getElementById('clearSearchBtn');
+                
+                // Show loading state
+                loadingState.style.display = 'flex';
+                emptyState.style.display = 'none';
+                errorState.style.display = 'none';
+                itinerariesContainer.style.display = 'none';
+                
+                try {
+                    const user = auth.getCurrentUser();
+                    if (!user || !user.id) {
+                        throw new Error('User ID not found');
+                    }
+                    
+                    const searchResults = await itineraryService.searchItineraries(user.id, searchTerm);
+                    
+                    // Hide loading state
+                    loadingState.style.display = 'none';
+                    
+                    if (!searchResults || !searchResults.data || searchResults.data.length === 0) {
+                        showEmptySearchState(searchTerm);
+                    } else {
+                        displayItineraries(searchResults);
+                        itinerariesContainer.style.display = 'block';
+                        isSearchActive = true;
+                        clearSearchBtn.style.display = 'inline-block';
+                    }
+                    
+                } catch (error) {
+                    console.error('Error searching itineraries:', error);
+                    loadingState.style.display = 'none';
+                    errorState.style.display = 'block';
+                    document.getElementById('errorMessage').textContent = `Search failed: ${error.message}`;
+                }
+            }
+            
+            function clearSearch() {
+                const searchInput = document.getElementById('searchInput');
+                const clearSearchBtn = document.getElementById('clearSearchBtn');
+                
+                searchInput.value = '';
+                isSearchActive = false;
+                clearSearchBtn.style.display = 'none';
+                
+                // Reload all itineraries
+                loadItineraries();
+            }
+            
+            function showEmptySearchState(searchTerm) {
+                const emptyState = document.getElementById('emptyState');
+                emptyState.innerHTML = `
+                    <i class="fas fa-search"></i>
+                    <h3>No Results Found</h3>
+                    <p>No itineraries found for "${searchTerm}". Try different keywords.</p>
+                    <button class="btn btn-primary" onclick="clearSearch()">
+                        <i class="fas fa-arrow-left me-2"></i>Back to All Itineraries
+                    </button>
+                `;
+                emptyState.style.display = 'block';
             }
             
             async function loadItineraries() {
@@ -235,12 +382,13 @@
                     };
                     
                     const itineraries = await itineraryService.getUserItineraries(user.id);
-                    debugger;
+                    allItineraries = itineraries; // Store for potential client-side filtering
+                    
                     // Hide loading state
                     loadingState.style.display = 'none';
                     
                     if (!itineraries || itineraries.length === 0) {
-                        emptyState.style.display = 'block';
+                        showEmptyState();
                     } else {
                         displayItineraries(itineraries);
                         itinerariesContainer.style.display = 'block';
@@ -252,6 +400,19 @@
                     errorState.style.display = 'block';
                     document.getElementById('errorMessage').textContent = error.message;
                 }
+            }
+            
+            function showEmptyState() {
+                const emptyState = document.getElementById('emptyState');
+                emptyState.innerHTML = `
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h3>No Travel History Yet</h3>
+                    <p>Start planning your first trip to see your itineraries here!</p>
+                    <a href="home.html" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Plan a Trip
+                    </a>
+                `;
+                emptyState.style.display = 'block';
             }
             
             function displayItineraries(itineraries) {

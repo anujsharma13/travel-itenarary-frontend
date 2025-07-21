@@ -94,12 +94,58 @@ class ItineraryService {
                 const errorData = await response.json().catch(() => null);
                 throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
             }
-
             const responseData = await response.json();
             return responseData;
 
         } catch (error) {
             console.error('Error fetching user itineraries:', error);
+            throw error;
+        }
+    }
+
+    async searchItineraries(userId, searchTerm) {
+        const authToken = this.getAuthToken();
+        const currentUser = localStorage.getItem('CURRENT_USER');
+        
+        if (!currentUser) {
+            throw new Error('User not logged in');
+        }
+        
+        const user = JSON.parse(currentUser);
+        const userName = user.userName;
+        
+        if (!authToken) {
+            throw new Error('Authentication token not found. Please log in again.');
+        }
+
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        if (!searchTerm || searchTerm.trim() === '') {
+            throw new Error('Search term is required');
+        }
+
+        const url = `${this.baseUrl}/api/itineraries/search?userId=${encodeURIComponent(userId)}&searchTerm=${encodeURIComponent(searchTerm.trim())}`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'userName': userName
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+            }
+            const responseData = await response.json();
+            return responseData;
+
+        } catch (error) {
+            console.error('Error searching itineraries:', error);
             throw error;
         }
     }
