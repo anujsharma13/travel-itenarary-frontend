@@ -1,7 +1,143 @@
 // Authentication Module
 const AUTH_API = 'http://localhost:8080/api/auth';
+const GOOGLE_CLIENT_ID = '267165566784-9ia3f7euh364ejt1sn9ne21p0vee64cc.apps.googleusercontent.com';
 
 const auth = {
+
+
+    // Trigger Google Sign-In with popup
+    signInWithGoogle() {
+        try {
+            if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+                throw new Error('Google OAuth library not loaded');
+            }
+
+            // Check if we're in a development environment
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.warn('Running on localhost - Google OAuth might have domain restrictions');
+            }
+
+            // Use OAuth2 popup approach for better user experience
+            const client = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: 'openid email profile',
+                callback: (response) => {
+                    if (response.access_token) {
+                        console.log(response.access_token);
+                        this.handleGoogleOAuthResponse(response.access_token);
+                    } else {
+                        console.error('No access token received');
+                        alert('Google sign-in failed. Please try again.');
+                    }
+                },
+                error_callback: (error) => {
+                    console.error('Google OAuth error:', error);
+                    if (error.type !== 'popup_closed') {
+                        alert('Google sign-in failed: ' + error.type);
+                    }
+                },
+                ux_mode: 'popup',
+                select_account: true // This forces account selection
+            });
+
+            // Request access token (opens popup)
+            client.requestAccessToken();
+
+        } catch (error) {
+            console.error('Error with Google Sign-In:', error);
+            this.handleGoogleNotAvailable();
+        }
+    },
+
+    // Handle Google OAuth response with access token
+    async handleGoogleOAuthResponse(accessToken) {
+        try {
+            // Fetch user info using the access token
+            const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (!userInfoResponse.ok) {
+                throw new Error('Failed to fetch user info');
+            }
+
+            const userData = await userInfoResponse.json();
+            console.log('Google user data:', userData);
+            
+            if (userData && userData.email) {
+                // Pass both user data and the Google access token to backend
+                await this.processGoogleUser(userData, accessToken);
+            } else {
+                throw new Error('Invalid Google user data received');
+            }
+        } catch (error) {
+            console.error('Google OAuth response error:', error);
+            alert('Failed to process Google authentication: ' + error.message);
+        }
+    },
+
+    // Handle case when Google Sign-In is not available
+    handleGoogleNotAvailable() {
+        console.warn('Google Sign-In not available');
+        
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            alert('Google Sign-In is not configured for localhost development.\n\nTo use Google Sign-In:\n1. Add http://localhost:5500 and http://127.0.0.1:5500 to authorized origins in Google Cloud Console\n2. Enable both "Authorized JavaScript origins" and "Authorized redirect URIs"\n3. Or use email/password login for development');
+        } else {
+            alert('Google Sign-In is not available. Please use email/password login or try again later.');
+        }
+    },
+
+    // Process Google user data
+    async processGoogleUser(userData, googleToken) {
+        try {
+            console.log('Attempting Google authentication for:', userData.email);
+            
+            debugger;
+            // Send Google token to backend for validation
+            const response = await fetch(`${AUTH_API}/google-auth`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'request-type': 'google'
+                },
+                body: JSON.stringify({
+                    token: googleToken,
+                    userData: userData
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.data) {
+                // Store the JWT token and user data from backend response
+                localStorage.setItem('JWT_TOKEN', data.data.token);
+                localStorage.setItem('CURRENT_USER', JSON.stringify({
+                    id: data.data.id,
+                    userName: data.data.userName,
+                    email: data.data.email,
+                    firstName: data.data.firstName,
+                    lastName: data.data.lastName,
+                    role: data.data.role
+                }));
+                
+                console.log('Google authentication successful');
+                alert('Google authentication successful!');
+                window.location.href = 'http://127.0.0.1:5500/html/home.html';
+                return;
+            } else {
+                throw new Error(data.message || 'Google authentication failed');
+            }
+            
+        } catch (error) {
+            console.error('Error processing Google user:', error);
+            alert('Google authentication failed: ' + error.message);
+        }
+    },
+
+    // Render Google Sign-In button
+
     async login(emailOrUsername, password) {
         const isEmail = emailOrUsername.includes('@');
         const loginData = isEmail 
@@ -18,14 +154,14 @@ const auth = {
         
         if (response.ok) {
             // Store in localStorage
-            localStorage.setItem('JWT_TOKEN', data.token);
+            localStorage.setItem('JWT_TOKEN', data.data.token);
             localStorage.setItem('CURRENT_USER', JSON.stringify({
-                id: data.id,
-                userName: data.userName,
-                email: data.email,
-                firstName: data.firstName,
-                lastName: data.lastName,
-                role: data.role
+                id: data.data.id,
+                userName: data.data.userName,
+                email: data.data.email,
+                firstName: data.data.firstName,
+                lastName: data.data.lastName,
+                role: data.data.role
             }));
             return data;
         }
@@ -97,6 +233,7 @@ const auth = {
 
 // Form handlers
 document.addEventListener('DOMContentLoaded', () => {
+
     // Login form
     const loginForm = document.getElementById('signinForm');
     if (loginForm) {
@@ -141,6 +278,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     }
+
+    // Google OAuth buttons
+    document.querySelectorAll('.google-signin-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            auth.signInWithGoogle();
+        };
+    });
 
     // Logout buttons
     document.querySelectorAll('[data-logout]').forEach(btn => {
