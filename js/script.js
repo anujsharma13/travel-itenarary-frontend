@@ -21,7 +21,8 @@ function initializeSpeechRecognition() {
             const transcript = event.results[0][0].transcript;
             document.getElementById('voiceResult').value = transcript;
             document.getElementById('voiceStatus').textContent = 'Voice captured successfully!';
-        };
+            performVoiceSearch();
+        };  
 
         recognition.onerror = function(event) {
             console.error('Speech recognition error:', event.error);
@@ -89,6 +90,21 @@ function toggleVoiceRecording() {
 }
 
 // Search functions
+
+async function performVoiceSearch() {
+    const query = document.getElementById('voiceResult').value;
+    if (query.trim()) {
+        showLoadingState();
+        try {
+            const aiResponse = await generateTripSuggestions(query);
+            showResults(`<h4>Search Results for: "${query}"</h4><br>${aiResponse}`);
+        } catch (error) {
+            showResults(`<h4>Search Results for: "${query}"</h4><br><p>Here are some general suggestions for your trip...</p>`);
+        }
+    }
+}
+
+
 async function performSearch() {
     const query = document.getElementById('mainSearch').value;
     if (query.trim()) {
