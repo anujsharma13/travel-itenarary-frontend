@@ -24,7 +24,18 @@
                         <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="home.html">Home</a></li>
                         <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="history.html">History</a></li>
                         <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="reviews.html">Reviews</a></li>
-                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="#">Newsletter</a></li>
+                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="payments.html">Payments</a></li>
+                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="newsletter.html">Newsletter</a></li>
+                        
+                        <!-- Membership Badge -->
+                        <li class="nav-item" data-auth-only style="display: none;">
+                            <span class="nav-link">
+                                <span class="badge bg-primary" id="membershipBadge" style="display: none;">
+                                    <i class="fas fa-crown me-1"></i>
+                                    <span id="membershipType">Free</span>
+                                </span>
+                            </span>
+                        </li>
                         
                         <!-- User Info and Logout -->
                         <li class="nav-item dropdown" data-auth-only style="display: none;">
@@ -123,6 +134,28 @@
                     // Update user name in navigation
                     const displayName = currentUser.firstName || currentUser.userName || 'User';
                     userNameElements.forEach(el => el.textContent = displayName);
+                    
+                    // Update membership display
+                    const membershipBadge = document.getElementById('membershipBadge');
+                    const membershipType = document.getElementById('membershipType');
+                    if (currentUser.membershipPlan && membershipBadge && membershipType) {
+                        membershipBadge.style.display = 'inline-block';
+                        membershipType.textContent = currentUser.membershipPlan;
+                        
+                        // Change badge color based on plan
+                        membershipBadge.className = 'badge';
+                        if (currentUser.membershipPlan === 'LITE') {
+                            membershipBadge.classList.add('bg-info');
+                        } else if (currentUser.membershipPlan === 'PRO') {
+                            membershipBadge.classList.add('bg-success');
+                        } else if (currentUser.membershipPlan === 'PREMIUM') {
+                            membershipBadge.classList.add('bg-warning');
+                        } else {
+                            membershipBadge.classList.add('bg-primary');
+                        }
+                    } else if (membershipBadge) {
+                        membershipBadge.style.display = 'none';
+                    }
                     
                     console.log('User authenticated:', displayName);
                 } else {
