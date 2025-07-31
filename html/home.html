@@ -730,26 +730,6 @@
                     const displayName = currentUser.firstName || currentUser.userName || 'User';
                     userNameElements.forEach(el => el.textContent = displayName);
                       // Show current membership if user has one
-                
-                // Update membership badge in navigation
-                const membershipBadge = document.getElementById('membershipBadge');
-                const membershipType = document.getElementById('membershipType');
-                if (currentUser.membershipPlan && membershipBadge && membershipType) {
-                    membershipBadge.style.display = 'inline-block';
-                    membershipType.textContent = currentUser.membershipPlan;
-                    
-                    // Change badge color based on plan
-                    membershipBadge.className = 'badge';
-                    if (currentUser.membershipPlan === 'LITE') {
-                        membershipBadge.classList.add('bg-info');
-                    } else if (currentUser.membershipPlan === 'PRO') {
-                        membershipBadge.classList.add('bg-success');
-                    } else if (currentUser.membershipPlan === 'PREMIUM') {
-                        membershipBadge.classList.add('bg-warning');
-                    } else {
-                        membershipBadge.classList.add('bg-primary');
-                    }
-                }
                     
                     // Update membership display
                     const membershipBadge = document.getElementById('membershipBadge');
