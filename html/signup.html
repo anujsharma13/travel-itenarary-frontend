@@ -291,25 +291,44 @@
         
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
-            <!-- Bootstrap navbar with light theme and shadow -->
             <div class="container-fluid">
-                <!-- Fluid container for full-width layout -->
+                <!-- TripAdvisor Logo -->
                 <a class="navbar-brand d-flex align-items-center" href="index.html">
-                    <!-- Brand link with flexbox alignment -->
                     <img src="https://static.tacdn.com/img2/brand_refresh/Tripadvisor_lockup_horizontal_secondary_registered.svg" alt="Tripadvisor Logo" height="32" class="me-2">
-                    <!-- Logo image with alt text for accessibility -->
                 </a>
+                
+                <!-- Navigation Menu -->
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <!-- Collapsible navigation menu aligned to the right -->
-                    <ul class="navbar-nav align-items-center">
-                        <!-- Navigation list with centered alignment -->
-                        <li class="nav-item"><a class="nav-link" href="signup.html">Sign Up</a></li>
-                        <!-- Navigation item with link -->
-                        <li class="nav-item"><a class="nav-link" href="#">Trips</a></li>
-                        <li class="nav-item"><a class="nav-link" href="reviews.html">Reviews</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Newsletter</a></li>
-                        <li class="nav-item"><a class="nav-link" href="signin.html">Sign in</a></li>
-                    </ul>
+                     <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="history.html">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="reviews.html">Reviews</a></li>
+                    <li class="nav-item"><a class="nav-link" href="payment.html">Payments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="newsletter.html">Newsletter</a></li>
+                    
+                    <!-- Membership Badge -->
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <span class="badge bg-primary" id="membershipBadge" style="display: none;">
+                                <i class="fas fa-crown me-1"></i>
+                                <span id="membershipType">Free</span>
+                            </span>
+                        </span>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <span data-user-name>User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" data-logout><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
                 </div>
             </div>
         </nav>

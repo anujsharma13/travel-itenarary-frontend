@@ -387,42 +387,36 @@
                 
                 <!-- Navigation Menu -->
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <ul class="navbar-nav align-items-center">
-                        <!-- Guest Navigation (shown when not logged in) -->
-                        <li class="nav-item" data-guest-only><a class="nav-link" href="signup.html">Sign Up</a></li>
-                        <li class="nav-item" data-guest-only><a class="nav-link" href="signin.html">Sign in</a></li>
-                        
-                        <!-- Authenticated Navigation (shown when logged in) -->
-                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="home.html">Home</a></li>
-                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="history.html">History</a></li>
-                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="reviews.html">Reviews</a></li>
-                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="payments.html">Payments</a></li>
-                        <li class="nav-item" data-auth-only style="display: none;"><a class="nav-link" href="newsletter.html">Newsletter</a></li>
-                        
-                        <!-- Membership Badge -->
-                        <li class="nav-item" data-auth-only style="display: none;">
-                            <span class="nav-link">
-                                <span class="badge bg-primary" id="membershipBadge" style="display: none;">
-                                    <i class="fas fa-crown me-1"></i>
-                                    <span id="membershipType">Free</span>
-                                </span>
+                     <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="history.html">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="reviews.html">Reviews</a></li>
+                    <li class="nav-item"><a class="nav-link" href="payment.html">Payments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="newsletter.html">Newsletter</a></li>
+                    
+                    <!-- Membership Badge -->
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <span class="badge bg-primary" id="membershipBadge" style="display: none;">
+                                <i class="fas fa-crown me-1"></i>
+                                <span id="membershipType">Free</span>
                             </span>
-                        </li>
-                        
-                        <!-- User Info and Logout -->
-                        <li class="nav-item dropdown" data-auth-only style="display: none;">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle me-1"></i>
-                                <span data-user-name>User</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" data-logout><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                            </ul>
-                        </li>
-                    </ul>
+                        </span>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <span data-user-name>User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" data-logout><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
                 </div>
             </div>
         </nav>
@@ -735,6 +729,27 @@
                     // Update user name in navigation
                     const displayName = currentUser.firstName || currentUser.userName || 'User';
                     userNameElements.forEach(el => el.textContent = displayName);
+                      // Show current membership if user has one
+                
+                // Update membership badge in navigation
+                const membershipBadge = document.getElementById('membershipBadge');
+                const membershipType = document.getElementById('membershipType');
+                if (currentUser.membershipPlan && membershipBadge && membershipType) {
+                    membershipBadge.style.display = 'inline-block';
+                    membershipType.textContent = currentUser.membershipPlan;
+                    
+                    // Change badge color based on plan
+                    membershipBadge.className = 'badge';
+                    if (currentUser.membershipPlan === 'LITE') {
+                        membershipBadge.classList.add('bg-info');
+                    } else if (currentUser.membershipPlan === 'PRO') {
+                        membershipBadge.classList.add('bg-success');
+                    } else if (currentUser.membershipPlan === 'PREMIUM') {
+                        membershipBadge.classList.add('bg-warning');
+                    } else {
+                        membershipBadge.classList.add('bg-primary');
+                    }
+                }
                     
                     // Update membership display
                     const membershipBadge = document.getElementById('membershipBadge');
